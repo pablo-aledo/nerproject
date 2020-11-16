@@ -2,6 +2,7 @@ import xml
 import os
 import spacy
 import zipfile
+from pymongo import MongoClient
 
 with zipfile.ZipFile(os.path.join('data', 'uspat1_201831_back_80001_100000.zip'), 'r') as zip_ref:
     zip_ref.extractall(os.path.join('data', 'uspat1_201831_back_80001_100000'))
@@ -34,3 +35,17 @@ element = element.split('\n'); element
 element = filter( lambda x : x.strip() != '', element ); element
 element = [ x.strip() for x in element ]; element
 
+client = MongoClient()
+
+db = client['namedEntityRecognition']
+collection = db['patents']
+
+entry1 = {
+      "application": "06176565",
+      "year": "2001",
+      "title": "Cleaning member for ink jet head and ink jet apparatus provided with said cleaning member",
+      "abstract": ["paragraph-1", "paragraph-2" ],
+      "fulltext": ["paragraph-1", "paragraph-2" ]
+      }
+
+db.collection.insert_one(entry1)
