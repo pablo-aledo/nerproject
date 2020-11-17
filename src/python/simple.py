@@ -1,22 +1,17 @@
-import xml
 import os
-import spacy
 import zipfile
-from pymongo import MongoClient
 from flask import Flask
-import xml.etree.ElementTree as ET
-import itertools
-import hashlib
 
 from processPatent.processPatent import get_fulltext, get_application, get_year, get_title, get_abstract
 from database.database import persist_data, get_patent, save_ner
 from namedEntityRecognition.namedEntityRecognition import hash_model, get_ner
+from config.config import basedir
 
 def loadArchive( zipName ):
     # with zipfile.ZipFile(os.path.join('data', 'uspat1_201831_back_80001_100000.zip'), 'r') as zip_ref:
         # zip_ref.extractall(os.path.join('tmp'))
 
-    with open(os.path.join('tmp', 'US06179885B2.xml')) as file:
+    with open(os.path.join(basedir, 'tmp', 'US06179885B2.xml')) as file:
         data = file.read().replace('<br/>','')
 
     application = get_application(data)
@@ -26,7 +21,10 @@ def loadArchive( zipName ):
     fulltext = get_fulltext(data)
 
     persist_data(application, year, title, abstract, fulltext)
-    process_patent( application )
+
+    document = get_patent(application)
+    ner = get_ner( document )
+    save_ner( ner, hash_model() )
 
 app = Flask(__name__)
 

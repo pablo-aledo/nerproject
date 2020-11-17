@@ -1,12 +1,6 @@
 import xml
-import os
-import spacy
-import zipfile
-from pymongo import MongoClient
-from flask import Flask
 import xml.etree.ElementTree as ET
 import itertools
-import hashlib
 
 def get_fulltext(data):
     root = ET.fromstring(data)
