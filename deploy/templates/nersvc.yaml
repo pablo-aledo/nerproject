@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app_name: nerproject
+  name: nersvc
+  namespace: default
+spec:
+  ports:
+  - name: 5000-tcp
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app_name: nerproject
+  type: NodePort
