@@ -23,10 +23,6 @@ spec:
     volumeMounts:
     - mountPath: /bitnami
       name: data
-  dnsPolicy: ClusterFirst
-  securityContext:
-    supplementalGroups:
-    - 65534
   volumes:
   - name: data
     persistentVolumeClaim:

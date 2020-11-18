@@ -18,7 +18,7 @@ def persist_data(application, year, title, abstract, fulltext):
 
 def get_patent( patentId ):
 
-    client = MongoClient()
+    client = MongoClient(host='mongo')
 
     db = client['patents']
     input_collection = db['collection']
@@ -30,13 +30,14 @@ def get_patent( patentId ):
 
 def save_ner(ners, hash_model):
 
-    client = MongoClient()
+    client = MongoClient(host='mongo')
 
     db = client['patents']
     output_collection = db['ners']
+
     ner_document = {
           "modelId": hash_model,
           "ners": ners
     }
 
-    output_collection.insert_one(ner_document)
+    output_collection.update({"modelId": hash_model}, ner_document, upsert=True)
