@@ -1,12 +1,22 @@
 import subprocess
+import sys
+from random import random
+from operator import add
+from pyspark.sql import SparkSession
+from namedEntityRecognition.namedEntityRecognition import hash_model, get_ner
+from database.database import persist_data, get_patent, save_ner
 
-from config.config import sparkToken, sparkSubmit
+#from config.config import sparkToken, sparkSubmit, k8sendpoint
+
+sparkToken = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlVJdFRxTHNHb294NXB2OVRyZzgzZVZzRm5QMHVWbGxRYVlYZmdlUlZUNzQifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InNwYXJrLXRva2VuLXN6MmQ3Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InNwYXJrIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiZjg2MThmZGUtN2ZmZi00NjkwLTk0M2YtMWM2M2ZkYzY1OGVmIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6c3BhcmsifQ.MNc2WOmUTE7qZocIBM9U61wnDD31aKCKSqHSQsGEmIQFMymOqO5VBkJuHidnHqR-lvWBeEupz1td6JTUbU6nDiFIUwGTO3c4Jy4iByeW4jKeA4zP60Mx6MwWcwjgTCMFtKLCiC86vQlNSLq4v2aD0KLiIozcqHpU9tz2G81MHoP5l-OuKhSrhQcxE3uZEdg2gRUUAP5_k33rAhQZbdNSGj_jl_GJDLLZmnZwlhuBX1ARiinyE7Raiq8n01eAJ8grLz0NEjR4qpSZoqiI-ZSV3uTxvTuJt_BC5aWuGY2f7h93Ba2XwPed4nSa0ndWP7ra0p2L4CcoAu5h0rCxU2eWqQ'
+sparkSubmit= '/tmp/spark-3.0.1-bin-hadoop2.7/bin/spark-submit'
+k8sendpoint=localhost
 
 def launch_spark():
     subprocess.call( [
         sparkSubmit,
         '--deploy-mode', 'cluster',
-        '--master', 'k8s://https://localhost:8443',
+        '--master', 'k8s://https://' + k8sendpoint + ':8443',
         '--name', 'sparkpi',
         '--conf', 'spark.kubernetes.authenticate.driver.serviceAccountName=spark',
         '--conf', 'spark.kubernetes.authenticate.submission.oauthToken=' + sparkToken,
@@ -15,6 +25,32 @@ def launch_spark():
         '--conf', 'spark.kubernetes.executor.container.image=spark-py:latest',
         '--conf', 'spark.kubernetes.container.image=spark-py:latest',
         '--conf', 'spark.kubernetes.container.imagePullPolicy=IfNotPresent',
-        'local:///opt/spark/examples/src/main/python/pi.py',
-        '100'
+        '--conf', 'spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.path=/opt/spark/shared-pvc',
+        '--conf', 'spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.readOnly=false',
+        '--conf', 'spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.claimName=shared-pvc',
+        '--conf', 'spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.path=/opt/spark/shared-pvc',
+        '--conf', 'spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.readOnly=false',
+        '--conf', 'spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.claimName=shared-pvc',
+        'local:///opt/app/nerproject/src/python/sparkLauncher/sparkLauncher.py',
+        '["patent1", "patent2"]'
     ] )
+
+if __name__ == "__main__":
+    spark = SparkSession\
+        .builder\
+        .appName("nerkernel")\
+        .getOrCreate()
+
+    partitions = eval(sys.argv[1])
+
+    def kernel(patentId):
+        document = get_patent(patentId)
+        ner = get_ner( document )
+        save_ner( ner, hash_model() )
+
+        return 1
+
+    count = spark.sparkContext.parallelize(partitions, len(partitions)).map(kernel).reduce(add)
+
+    spark.stop()
+

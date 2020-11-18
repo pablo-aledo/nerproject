@@ -23,9 +23,9 @@ def loadArchive( zipName ):
 
     persist_data(application, year, title, abstract, fulltext)
 
-    document = get_patent(application)
-    ner = get_ner( document )
-    save_ner( ner, hash_model() )
+    # document = get_patent(application)
+    # ner = get_ner( document )
+    # save_ner( ner, hash_model() )
 
 app = Flask(__name__)
 

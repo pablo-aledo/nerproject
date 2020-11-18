@@ -1,0 +1,3 @@
+FROM spark-py
+
+ADD nerproject /opt/app/nerproject
