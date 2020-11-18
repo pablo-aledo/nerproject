@@ -7,7 +7,7 @@ metadata:
   namespace: default
 spec:
   containers:
-  - image: nerserver:latest
+  - image: nerproject:latest
     imagePullPolicy: IfNotPresent
     name: nerserver
     args:
@@ -19,7 +19,7 @@ spec:
     - containerPort: 5000
       protocol: TCP
     volumeMounts:
-    - mountPath: /opt/app/nerserver
+    - mountPath: /opt/app/nerproject/shared-pvc
       name: data
   volumes:
   - name: data

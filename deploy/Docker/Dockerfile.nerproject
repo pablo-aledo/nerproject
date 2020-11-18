@@ -1,3 +1,10 @@
 FROM spark-py
 
 ADD nerproject /opt/app/nerproject
+
+user 0
+RUN pip3 install -r /opt/app/nerproject/src/python/requirements.txt
+user 185
+
+ENV PYTHONPATH=/opt/app/nerproject/src/python
+
