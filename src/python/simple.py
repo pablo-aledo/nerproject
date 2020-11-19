@@ -8,11 +8,21 @@ from namedEntityRecognition.namedEntityRecognition import hash_model, get_ner
 from config.config import basedir
 from sparkLauncher.sparkLauncher import launch_spark
 
-def loadArchive( zipName ):
-    # with zipfile.ZipFile(os.path.join('data', 'uspat1_201831_back_80001_100000.zip'), 'r') as zip_ref:
-        # zip_ref.extractall(os.path.join('tmp'))
+app = Flask(__name__)
 
-    with open(os.path.join(basedir, 'tmp', 'US06179885B2.xml')) as file:
+@app.route('/ping')
+def ping():
+    return 'pong'
+
+@app.route('/decompress/<zipId>')
+def decompress(zipId):
+    with zipfile.ZipFile(os.path.join(basedir, 'data', zipId), 'r') as zip_ref:
+        zip_ref.extractall(os.path.join(basedir, 'tmp'))
+    return 'zip loaded %s' % zipId
+
+@app.route('/persist/<patentId>')
+def persist(patentId):
+    with open(os.path.join(basedir, 'tmp', patentId)) as file:
         data = file.read().replace('<br/>','')
 
     application = get_application(data)
@@ -22,20 +32,16 @@ def loadArchive( zipName ):
     fulltext = get_fulltext(data)
 
     persist_data(application, year, title, abstract, fulltext)
+    return 'patent stored in the databse %s' % patentId
 
-    # document = get_patent(application)
-    # ner = get_ner( document )
-    # save_ner( ner, hash_model() )
+@app.route('/ner/<patentId>')
+def ner(patentId):
+    document = get_patent(patentId)
+    ner = get_ner( document )
+    save_ner( ner, hash_model() )
+    return 'NER computed %s' % patentId
 
-app = Flask(__name__)
-
-@app.route('/ping')
-def ping():
-    return 'pong'
-
-@app.route('/load/<zipId>')
-def load_archive(zipId):
-    loadArchive(zipId)
-    return 'zip loaded %s' % zipId
-
-
+@app.route('/sparkner')
+def sparkner():
+    launch_spark()
+    return 'spark launched'

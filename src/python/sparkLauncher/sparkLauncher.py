@@ -37,26 +37,26 @@ def launch_spark(listPatents):
         "[" + ( ','.join( map( lambda x: '"' + x + '"', listPatents ) ) ) + "]"
     ] )
 
-   /tmp/spark-3.0.1-bin-hadoop2.7/bin/spark-submit \
-   --deploy-mode cluster \
-   --master k8s://https://localhost:8443 \
-   --name nerkernel \
-   --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
-   --conf spark.executor.instances=5 \
-   --conf spark.kubernetes.driver.container.image=nerproject:latest \
-   --conf spark.kubernetes.executor.container.image=nerproject:latest \
-   --conf spark.kubernetes.container.image=nerproject:latest \
-   --conf spark.kubernetes.container.imagePullPolicy=IfNotPresent \
-   --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.path=/opt/spark/shared-pvc \
-   --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.readOnly=false \
-   --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.options.claimName=shared-pvc \
-   --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.path=/opt/spark/shared-pvc \
-   --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.readOnly=false \
-   --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.options.claimName=shared-pvc \
-   --conf spark.executorEnv.PYTHONPATH=/opt/app/nerproject/src/python \
-   --conf spark.driverEnv.PYTHONPATH=/opt/app/nerproject/src/python \
-   local:///opt/app/nerproject/src/python/sparkLauncher/sparkLauncher.py \
-   '["patent1","patent2"]'
+   # /tmp/spark-3.0.1-bin-hadoop2.7/bin/spark-submit \
+   # --deploy-mode cluster \
+   # --master k8s://https://localhost:8443 \
+   # --name nerkernel \
+   # --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+   # --conf spark.executor.instances=5 \
+   # --conf spark.kubernetes.driver.container.image=nerproject:latest \
+   # --conf spark.kubernetes.executor.container.image=nerproject:latest \
+   # --conf spark.kubernetes.container.image=nerproject:latest \
+   # --conf spark.kubernetes.container.imagePullPolicy=IfNotPresent \
+   # --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.path=/opt/spark/shared-pvc \
+   # --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.mount.readOnly=false \
+   # --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.volume.options.claimName=shared-pvc \
+   # --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.path=/opt/spark/shared-pvc \
+   # --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.mount.readOnly=false \
+   # --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.volume.options.claimName=shared-pvc \
+   # --conf spark.executorEnv.PYTHONPATH=/opt/app/nerproject/src/python \
+   # --conf spark.driverEnv.PYTHONPATH=/opt/app/nerproject/src/python \
+   # local:///opt/app/nerproject/src/python/sparkLauncher/sparkLauncher.py \
+   # '["patent1","patent2"]'
 
 if __name__ == "__main__":
     spark = SparkSession\

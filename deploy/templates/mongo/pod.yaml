@@ -6,6 +6,7 @@ metadata:
   name: mongo
   namespace: default
 spec:
+  hostNetwork: true
   containers:
   - image: bitnami/mongodb:latest
     imagePullPolicy: IfNotPresent
@@ -16,10 +17,10 @@ spec:
     resources:
       limits:
         cpu: "1"
-        memory: 40Gi
+        memory: 4Gi
       requests:
         cpu: "1"
-        memory: 40Gi
+        memory: 4Gi
     volumeMounts:
     - mountPath: /bitnami
       name: data

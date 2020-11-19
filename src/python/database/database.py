@@ -1,9 +1,10 @@
 from pymongo import MongoClient
+from config.config import mongohost
 
 def persist_data(application, year, title, abstract, fulltext):
-    client = MongoClient()
+    client = MongoClient(host=mongohost)
 
-    db = client['patents']
+    db = client['nerproject']
     collection = db['patents']
 
     entry = {
@@ -14,30 +15,29 @@ def persist_data(application, year, title, abstract, fulltext):
           "fulltext": fulltext
           }
 
-    db.collection.insert_one(entry)
+    collection.update({"application": application}, entry, upsert=True)
 
 def get_patent( patentId ):
 
-    client = MongoClient(host='mongo')
+    client = MongoClient(host=mongohost)
 
-    db = client['patents']
-    input_collection = db['collection']
-    output_collection = db['ners']
+    db = client['nerproject']
+    collection = db['patents']
 
-    document = input_collection.find_one({"application": u'09337997'})
+    document = collection.find_one({"application": patentId})
 
     return document
 
 def save_ner(ners, hash_model):
 
-    client = MongoClient(host='mongo')
+    client = MongoClient(host=mongohost)
 
-    db = client['patents']
-    output_collection = db['ners']
+    db = client['nerproject']
+    collection = db['ners']
 
     ner_document = {
           "modelId": hash_model,
           "ners": ners
     }
 
-    output_collection.update({"modelId": hash_model}, ner_document, upsert=True)
+    collection.update({"modelId": hash_model}, ner_document, upsert=True)
