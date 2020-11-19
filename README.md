@@ -30,12 +30,12 @@ consider more chemicals besides isobutanol.
 Selection of technologies
 -------------------------
 
-- Python is used as the main programming language
-- Flask is used as service provider
-- Kubernetes is used as orchestration framework
-- Docker is used as container solution
-- spacy is used as NER library
-- Spark is used as parallelization library
+- **Python** is used as the main programming language
+- **Flask** is used as service provider
+- **Kubernetes** is used as orchestration framework
+- **Docker** is used as container solution
+- **spacy** is used as NER library
+- **Spark** is used as parallelization library
 
 Deliverables
 ------------
