@@ -36,6 +36,7 @@ Selection of technologies
 - **Docker** is used as container solution
 - **spacy** is used as NER library
 - **Spark** is used as parallelization library
+- **ElementTree** to parse patent files
 
 Deliverables
 ------------
